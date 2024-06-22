@@ -13,11 +13,11 @@ The kernel will then display a message on the screen.
 - emulator: qemu-system-i386
 
 # Building
-In 'boot':
-- Assemble the bootloader: `nasm -fbin bootloader.asm -o bootloader.bin`
-In 'kernel':
-- Assemble start.asm: `nasm -fbin start.asm -o start.bin`
-- Compiler init.c: `smlrcc -flat32 -origin 0x1200 init.c -o init.bin`
-- Concatenate the binary files: `copy /b start.bin+init.bin kernel.bin`
-In root repository directory:
-- Concatenate the bootloader and kernel.bin: `copy /b boot\bootloader.bin+kernel\kernel.bin os.bin`
+- In 'boot':
+  - Assemble the bootloader: `nasm -fbin bootloader.asm -o bootloader.bin`
+- In 'kernel':
+  - Assemble start.asm: `nasm -fbin start.asm -o start.bin`
+  - Compile init.c: `smlrcc -flat32 -origin 0x1200 init.c -o init.bin`
+  - Concatenate the binary files: `copy /b start.bin+init.bin kernel.bin`
+- In root repository directory:
+  - Concatenate the bootloader and kernel.bin: `copy /b boot\bootloader.bin+kernel\kernel.bin os.bin`
