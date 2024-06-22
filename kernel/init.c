@@ -1,16 +1,8 @@
-#define TEXT_MEM 0xb8000
-#define SCREENW 80
-#define SCREENH 25
-
-void print(char *s, int x, int y, char c)
-{
-	short *p = (short *)(TEXT_MEM + 2 * (SCREENW * y + x));
-	while (*s)
-		*(p++) = c << 8 | *(s++);
-}
+#include <vga.h>
 
 void _start()
 {
-	print("Kernel has started.", 1, 1, 0x0a);
+	cls(0, VGA_BLUE << 4);
+	print(1, 1, "Kernel has started.", (VGA_BLUE << 4) | (VGA_GREY | VGA_LIGHT));
 	while (1) ;
 }
