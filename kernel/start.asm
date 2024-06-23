@@ -1,6 +1,15 @@
 	[bits 16]
 	[org 0x1000]
 	
+PIC1 equ 0x20
+PIC2 equ 0xa0
+
+; wait for a short delay (it may be required to wait for the PIC)
+%macro iowait 0
+	jmp $ + 2
+	jmp $ + 2
+%endmacro
+	
 start:
 	; assuming that A20 line is enabled
 	; enter in protected mode
@@ -21,6 +30,39 @@ pmode_start:
 	mov es, ax
 	mov ss, ax
 	mov esp, 0x9000
+	
+	; now, remap the PIC
+	; map master PIC's vector offsets to 0x20 - 0x27
+	; and slave PIC's vector offsets to 0x28 - 0x2f
+	; so that they don't collapse with CPU exceptions
+	
+	; init sequence
+	mov al, 0x11
+	out PIC1, al
+	iowait
+	out PIC2, al
+	iowait
+	; remap master PIC
+	mov al, 0x20
+	out PIC1 + 1, al
+	iowait
+	; remap slave PIC
+	mov al, 0x28
+	out PIC2 + 1, al
+	iowait
+	; slave PIC at IRQ2
+	mov al, 4
+	out PIC1 + 1, al
+	iowait
+	mov al, 2
+	out PIC2 + 1, al
+	iowait
+	; set 8086 mode
+	mov al, 1
+	out PIC1 + 1, al
+	iowait
+	out PIC2 + 1, al
+	iowait
 	
 	jmp 8:0x1200      ; jump to the kernel (init.s)
 	

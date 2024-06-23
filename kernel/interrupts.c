@@ -1,5 +1,7 @@
-#include <exceptions.h>
+#include <interrupts.h>
 #include <vga.h>
+
+#define INT_NUM 256
 
 /*
  * I haven't figured out how to declare a function as an interrupt handler
@@ -13,12 +15,12 @@
  
 extern void set_up_wrappers_table();
 
-/* array of pointers to the exception handlers */
-void *handlers[32];
+/* array of pointers to the interrupt handlers */
+void *handlers[INT_NUM];
 
 /* array of pointers to the wrappers */
 /* it is filled with set_up_wrappers_table() (wrappers.asm) */
-void *wrappers[32];
+void *wrappers[INT_NUM];
 
 /* division by 0 exception handler */
 void div0_handler()
@@ -26,10 +28,15 @@ void div0_handler()
 	print(3, 3, "exception: division by zero", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
 }
 
-/* exception handler used by default */
+void keyboard_handler()
+{
+	print(1, 23, "keyboard interruption", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+}
+
+/* interrupt handler used by default */
 void default_handler()
 {
-	print(3, 3, "default exception handler", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+	print(3, 5, "default interrupt handler", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
 }
 
 /* this should set up the IDT with the offsets of the wrappers */
@@ -40,7 +47,7 @@ void setup_idt()
 	
 	set_up_wrappers_table();
 	
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < INT_NUM; i++) {
 		p->offset_low = (unsigned int)wrappers[i] & 0xffff;
 		p->selector = 0x08;
 		p->reserved = 0;
@@ -50,8 +57,8 @@ void setup_idt()
 	}
 }
 
-/* set up a particular exception handler */
-void set_exception_handler(int entry, void *handler)
+/* set up a particular interrupt handler */
+void set_handler(int entry, void *handler)
 {
 	handlers[entry] = handler;
 }

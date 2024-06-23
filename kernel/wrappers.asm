@@ -1,7 +1,7 @@
 	bits 32
 	section .text
 %assign i 0
-%rep 32
+%rep 256
 	global _wrapper_handler_%+i
 %assign i i+1
 %endrep
@@ -20,7 +20,7 @@ _wrapper_handler_%+%1:
 %endmacro
 
 %assign i 0
-%rep 32
+%rep 256
 WRAPPER i
 %assign i i+1
 %endrep
@@ -29,7 +29,7 @@ _set_up_wrappers_table:
 	pusha
 	mov esi, _wrappers
 %assign i 0
-%rep 32
+%rep 256
 	mov dword [esi], _wrapper_handler_%+i
 	add esi, 4
 %assign i i+1

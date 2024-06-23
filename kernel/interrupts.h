@@ -11,9 +11,10 @@ struct idt_entry {
 };
 
 void div0_handler();
+void keyboard_handler();
 void default_handler();
 
 void setup_idt();
-void set_exception_handler(int entry, void *handler);
+void set_handler(int entry, void *handler);
 
 #endif
