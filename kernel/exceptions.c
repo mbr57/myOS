@@ -14,7 +14,7 @@
 extern void set_up_wrappers_table();
 
 /* array of pointers to the exception handlers */
-void *handlers[5];
+void *handlers[32];
 
 /* array of pointers to the wrappers */
 /* it is filled with set_up_wrappers_table() (wrappers.asm) */
