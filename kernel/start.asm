@@ -63,6 +63,12 @@ pmode_start:
 	iowait
 	out PIC2 + 1, al
 	iowait
+	; disable all interrupts
+	mov al, 0xff
+	out PIC1 + 1, al
+	iowait
+	out PIC2 + 1, al
+	iowait
 	
 	jmp 8:0x1200      ; jump to the kernel (init.s)
 	

@@ -30,7 +30,7 @@ void div0_handler()
 
 void keyboard_handler()
 {
-	print(1, 23, "keyboard interruption", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+	print(3, 4, "keyboard interruption", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
 }
 
 /* interrupt handler used by default */
@@ -55,6 +55,12 @@ void setup_idt()
 		p->offset_high = (unsigned int)wrappers[i] >> 16;
 		p++;
 	}
+}
+
+void set_idt_attributes(int entry, unsigned char attributes)
+{
+    struct idt_entry *p = (struct idt_entry *)(entry * 8);
+    p->attributes = attributes;
 }
 
 /* set up a particular interrupt handler */

@@ -4,6 +4,8 @@
  * Here are some VGA text mode functions
  */
 
+static char hex_digits[] = "0123456789ABCDEF";
+
 void cls(char c, attr_t a)
 {
 	int i = 0;
@@ -28,4 +30,13 @@ void print(int x, int y, char *s, attr_t a)
 		*(p++) = *(s++);
 		*(p++) = a;
 	}
+}
+
+void print_hex(int x, int y, unsigned char n, attr_t a)
+{
+    char *p = (char *)(TEXT_MEM + 2 * (TEXT_SCREENW * y + x));
+    *(p++) = hex_digits[n >> 4];
+    *(p++) = a;
+    *(p++) = hex_digits[n & 15];
+    *(p++) = a;
 }

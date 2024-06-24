@@ -8,20 +8,51 @@
 	global _set_up_wrappers_table
 	extern _handlers
 	extern _wrappers
-	
-%macro WRAPPER 1
+
+%macro iowait 0
+	jmp $ + 2
+	jmp $ + 2
+%endmacro
+
+; send an end of interrupt to the PIC(s)
+%macro SEND_EOI 1
+  mov al, 0x20
+%if %1 > 0x28
+  out 0xa0, al
+  iowait 
+%endif
+  out 0x20, al
+  iowait
+%endmacro
+
+; first argument: handler number
+; second argument: is for IRQ (1: yes, 0: no)
+%macro WRAPPER 2
 _wrapper_handler_%+%1:
 	pusha
-	mov esi, _handlers
-	add esi, %1 << 2
-	call [esi]
+	call [_handlers + (%1 * 4)]
+%if %2 = 1
+  SEND_EOI %1
+%endif
 	popa
 	iret
 %endmacro
 
+; for exceptions
 %assign i 0
-%rep 256
-WRAPPER i
+%rep 32
+WRAPPER i, 0
+%assign i i+1
+%endrep
+
+; for IRQs
+%rep 16
+WRAPPER i, 1
+%assign i i+1
+%endrep
+
+%rep 256-32-16
+WRAPPER i, 0
 %assign i i+1
 %endrep
 

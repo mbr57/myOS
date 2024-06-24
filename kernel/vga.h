@@ -23,5 +23,6 @@ typedef char attr_t;
 void cls(char c, attr_t a);
 void putchar(int x, int y, char c, attr_t a);
 void print(int x, int y, char *s, attr_t a);
+void print_hex(int x, int y, unsigned char n, attr_t a);
 
 #endif
