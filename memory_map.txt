@@ -1,0 +1,9 @@
+Memory amount: 8 MiB
+
+0x000  - 0x7ff  : IDT
+0x1000 - 0x1fff : page directory
+0x2000 - 0x2fff : page table 1 (1:1 paging the first 4 MiB)
+0x3000 - 0x3fff : page table 2
+0x4000 - ?      : kernel
+0x7c00 - 0x7e00 : bootloader
+?      - 0x9000 : kernel stack

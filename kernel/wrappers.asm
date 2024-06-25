@@ -1,17 +1,17 @@
-	bits 32
-	section .text
+    bits 32
+    section .text
 %assign i 0
 %rep 256
-	global _wrapper_handler_%+i
+    global _wrapper_handler_%+i
 %assign i i+1
 %endrep
-	global _set_up_wrappers_table
-	extern _handlers
-	extern _wrappers
+    global _set_up_wrappers_table
+    extern _handlers
+    extern _wrappers
 
 %macro iowait 0
-	jmp $ + 2
-	jmp $ + 2
+    jmp $ + 2
+    jmp $ + 2
 %endmacro
 
 ; send an end of interrupt to the PIC(s)
@@ -29,13 +29,13 @@
 ; second argument: is for IRQ (1: yes, 0: no)
 %macro WRAPPER 2
 _wrapper_handler_%+%1:
-	pusha
-	call [_handlers + (%1 * 4)]
+    pusha
+    call [_handlers + (%1 * 4)]
 %if %2 = 1
   SEND_EOI %1
 %endif
-	popa
-	iret
+    popa
+    iret
 %endmacro
 
 ; for exceptions
@@ -57,13 +57,13 @@ WRAPPER i, 0
 %endrep
 
 _set_up_wrappers_table:
-	pusha
-	mov esi, _wrappers
+    pusha
+    mov esi, _wrappers
 %assign i 0
 %rep 256
-	mov dword [esi], _wrapper_handler_%+i
-	add esi, 4
+    mov dword [esi], _wrapper_handler_%+i
+    add esi, 4
 %assign i i+1
 %endrep
-	popa
-	ret
+    popa
+    ret

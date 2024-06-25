@@ -25,36 +25,41 @@ void *wrappers[INT_NUM];
 /* division by 0 exception handler */
 void div0_handler()
 {
-	print(3, 3, "exception: division by zero", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    print(3, 3, "exception: division by zero", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
 }
+
+static unsigned char scancode;
 
 void keyboard_handler()
 {
-	print(3, 4, "keyboard interruption", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    asm("in al, 0x60\n"
+        "mov byte [_scancode], al\n");
+    print(3, 4, "keyboard interrupt, scancode =", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    print_hex(34, 4, scancode, (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
 }
 
 /* interrupt handler used by default */
 void default_handler()
 {
-	print(3, 5, "default interrupt handler", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    print(3, 5, "default interrupt handler", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
 }
 
 /* this should set up the IDT with the offsets of the wrappers */
 void setup_idt()
 {
-	struct idt_entry *p = (struct idt_entry *)0;
-	int i;
-	
-	set_up_wrappers_table();
-	
-	for (i = 0; i < INT_NUM; i++) {
-		p->offset_low = (unsigned int)wrappers[i] & 0xffff;
-		p->selector = 0x08;
-		p->reserved = 0;
-		p->attributes = 0x8f;
-		p->offset_high = (unsigned int)wrappers[i] >> 16;
-		p++;
-	}
+    struct idt_entry *p = (struct idt_entry *)0;
+    int i;
+    
+    set_up_wrappers_table();
+    
+    for (i = 0; i < INT_NUM; i++) {
+        p->offset_low = (unsigned int)wrappers[i] & 0xffff;
+        p->selector = 0x08;
+        p->reserved = 0;
+        p->attributes = 0x8f;
+        p->offset_high = (unsigned int)wrappers[i] >> 16;
+        p++;
+    }
 }
 
 void set_idt_attributes(int entry, unsigned char attributes)
@@ -66,5 +71,5 @@ void set_idt_attributes(int entry, unsigned char attributes)
 /* set up a particular interrupt handler */
 void set_handler(int entry, void *handler)
 {
-	handlers[entry] = handler;
+    handlers[entry] = handler;
 }
