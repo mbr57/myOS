@@ -12,6 +12,7 @@ struct idt_entry {
 
 /* handlers */
 void div0_handler();
+void pf_handler();
 void keyboard_handler();
 void default_handler();
 

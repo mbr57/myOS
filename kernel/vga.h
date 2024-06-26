@@ -18,11 +18,20 @@
 
 #define VGA_LIGHT 8
 
+#define DEFAULT_ATTR (VGA_BLUE << 4) | (VGA_GREY | VGA_LIGHT)
+
 typedef char attr_t;
 
-void cls(char c, attr_t a);
-void putchar(int x, int y, char c, attr_t a);
-void print(int x, int y, char *s, attr_t a);
-void print_hex(int x, int y, unsigned char n, attr_t a);
+void vga_clear_screen(char *buffer, char c, attr_t a);
+
+void vga_disable_cursor();
+void vga_move_cursor(int x, int y);
+
+void vga_putchar(char *buffer, int x, int y, char c, attr_t a);
+void vga_print(char *buffer, int x, int y, char *s, attr_t a);
+void vga_print_hex(char *buffer, int x, int y, unsigned char n, attr_t a);
+
+void vga_copy(char *buffer);
+void vga_scroll_up(char *buffer);
 
 #endif

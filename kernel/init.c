@@ -1,7 +1,6 @@
 #include <interrupts.h>
+#include <tty.h>
 #include <vga.h>
-
-#define DEFAULT_ATTR (VGA_BLUE << 4) | (VGA_GREY | VGA_LIGHT)
 
 char pic1_m, pic2_m;
 
@@ -11,25 +10,18 @@ void _start()
     unsigned char x;
     unsigned int ptr = div0_handler;
     
-    /* disable the cursor */
-    asm("mov dx, 0x3d4\n"
-        "mov al, 0x0a\n"
-        "out dx, al\n"
-        "mov al, 0x20\n"
-        "inc dx\n"
-        "out dx, al\n");
-    
-    /* clear the screen */
-    cls(0, VGA_BLUE << 4);
-    
-    print(1, 1, "Kernel has started.", DEFAULT_ATTR);
+    vga_clear_screen(TEXT_MEM, 0, DEFAULT_ATTR);
+
+    for (i = 0; i < 5; i++)
+        tty_init(i);
+    tty_init(3);
 
     /* set up the handlers and the IDT */
-    set_handler(0, div0_handler);
-    for (i = 1; i < 256; i++) {
+    for (i = 0; i < 256; i++) {
         set_handler(i, default_handler);
     }
-    
+    set_handler(0, div0_handler);
+    set_handler(0xe, pf_handler);
     set_handler(0x21, keyboard_handler); /* for keyboard IRQ */
     
     setup_idt();
@@ -53,16 +45,17 @@ void _start()
         "jmp $ + 2\n"
         "jmp $ + 2\n");
 
-    print(1, 9, "PIC1 mask: ", DEFAULT_ATTR);
-    print_hex(12, 9, pic1_m, DEFAULT_ATTR);
-    print(1, 10, "PIC2 mask: ", DEFAULT_ATTR);
-    print_hex(12, 10, pic2_m, DEFAULT_ATTR);
 
     asm("sti\n"); /* enable hardware interrupts */
 
+    tty_print(0,"Kernel has started\nThis is a text line\n");
+    tty_print(0,"This is another text line.\n");
+
+    tty_print(2, "tty2\n\nmyOS kernel\n");
+
     x = 0;
     while (1) {
-        print_hex(20, 20, x, VGA_BLUE << 4 | VGA_GREEN);
+        //tty_print(0,"This is another text line.\n");
         x++;
     }
 }

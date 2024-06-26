@@ -1,4 +1,5 @@
 #include <interrupts.h>
+#include <tty.h>
 #include <vga.h>
 
 #define INT_NUM 256
@@ -14,6 +15,7 @@
  */
  
 extern void set_up_wrappers_table();
+extern int current_tty;
 
 /* array of pointers to the interrupt handlers */
 void *handlers[INT_NUM];
@@ -25,7 +27,12 @@ void *wrappers[INT_NUM];
 /* division by 0 exception handler */
 void div0_handler()
 {
-    print(3, 3, "exception: division by zero", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    tty_print(0, "Exception: division by zero.\n");
+}
+
+void pf_handler()
+{
+    tty_print(0, "Exception: page fault.\n");
 }
 
 static unsigned char scancode;
@@ -34,14 +41,15 @@ void keyboard_handler()
 {
     asm("in al, 0x60\n"
         "mov byte [_scancode], al\n");
-    print(3, 4, "keyboard interrupt, scancode =", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
-    print_hex(34, 4, scancode, (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    if (scancode >= 0x10 && scancode < 0x15)
+        tty_switch(scancode - 0x10);
+    tty_print(4, "Keyboard interrupt\n");
 }
 
 /* interrupt handler used by default */
 void default_handler()
 {
-    print(3, 5, "default interrupt handler", (VGA_BLUE << 4) | (VGA_RED | VGA_LIGHT));
+    tty_print(1, "Default handler.\n\n");
 }
 
 /* this should set up the IDT with the offsets of the wrappers */
